@@ -24,6 +24,10 @@ RUN apt-get update -qq && \
 COPY package-lock.json package.json ./
 RUN npm ci --include=dev
 
+# NEXT_PUBLIC_* vars must be available at compile time to be baked into JS bundle
+ARG NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+
 # Copy application code
 COPY . .
 

@@ -7,6 +7,8 @@ app = 'ben-mea-the-gallery'
 primary_region = 'sin'
 
 [build]
+  [build.args]
+    NEXT_PUBLIC_API_BASE_URL = "https://wedding-card-online-service.fly.dev"
 
 [http_service]
   internal_port = 8080
