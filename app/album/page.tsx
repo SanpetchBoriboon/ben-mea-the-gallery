@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import GalleryHeader from '../components/GalleryHeader';
 
 interface ApiImage {
   name: string;
@@ -59,81 +60,7 @@ export default function AlbumPage() {
 
   return (
     <div className='min-h-screen bg-black relative'>
-      {/* Header Navigation */}
-      <header className='relative z-10 px-6 py-4'>
-        <div className='max-w-7xl mx-auto flex justify-between items-center'>
-          {/* Logo */}
-          <div className='text-center'>
-            <a
-              href='/'
-              className='text-white text-2xl font-bold tracking-wider hover:text-orange-300 transition-colors font-kanit'
-              style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-            >
-              Our Gallery
-            </a>
-          </div>
-
-          {/* Gallery Selector */}
-          <div className='hidden md:flex'>
-            <select
-              className='bg-black/50 text-white border border-white/30 rounded-lg px-4 py-2 focus:outline-none focus:border-orange-300 backdrop-blur-sm font-kanit'
-              onChange={e => {
-                const value = e.target.value;
-                if (value) {
-                  window.location.href = value;
-                }
-              }}
-              value='/album'
-              style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-            >
-              <option
-                value='/'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                หน้าแรก
-              </option>
-              <option
-                value='/wishes'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากคำอวยพร
-              </option>
-              <option
-                value='/photographer'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากช่างภาพ
-              </option>
-              <option
-                value='/album'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากอัลบัม
-              </option>
-            </select>
-          </div>
-
-          {/* Mobile Back Button */}
-          <button
-            className='md:hidden text-white'
-            onClick={() => (window.location.href = '/')}
-          >
-            <svg
-              className='w-6 h-6'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M10 19l-7-7m0 0l7-7m-7 7h18'
-              />
-            </svg>
-          </button>
-        </div>
-      </header>
+      <GalleryHeader />
 
       {/* Dynamic Gallery Background with Auto-Sliding */}
       <div className='absolute inset-0 opacity-100'>

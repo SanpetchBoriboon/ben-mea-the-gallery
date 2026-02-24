@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import thankYouLogo from '../../src/images/thank-you-logo.backup.png';
+import GalleryHeader from '../components/GalleryHeader';
 
 interface ApiImage {
   _id: string;
@@ -94,97 +96,24 @@ export default function WishesPage() {
   };
 
   return (
-    <div className='min-h-screen bg-black relative'>
-      {/* Header Navigation */}
-      <header className='relative z-10 px-6 py-4'>
-        <div className='max-w-7xl mx-auto flex justify-between items-center'>
-          {/* Logo */}
-          <div className='text-center'>
-            <a
-              href='/'
-              className='text-white text-2xl font-bold tracking-wider hover:text-orange-300 transition-colors font-kanit'
-              style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-            >
-              Our Gallery
-            </a>
-          </div>
-
-          {/* Gallery Selector */}
-          <div className='hidden md:flex'>
-            <select
-              className='bg-black/50 text-white border border-white/30 rounded-lg px-4 py-2 focus:outline-none focus:border-orange-300 backdrop-blur-sm font-kanit'
-              onChange={e => {
-                const value = e.target.value;
-                if (value) {
-                  window.location.href = value;
-                }
-              }}
-              value='/wishes'
-              style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-            >
-              <option
-                value='/'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                หน้าแรก
-              </option>
-              <option
-                value='/wishes'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากคำอวยพร
-              </option>
-              <option
-                value='/photographer'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากช่างภาพ
-              </option>
-              <option
-                value='/album'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากอัลบัม
-              </option>
-            </select>
-          </div>
-
-          {/* Mobile Selector Button */}
-          <button
-            className='md:hidden text-white'
-            onClick={() => (window.location.href = '/')}
-          >
-            <svg
-              className='w-6 h-6'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M10 19l-7-7m0 0l7-7m-7 7h18'
-              />
-            </svg>
-          </button>
-        </div>
-      </header>
+    <div className='min-h-screen relative '>
+      <GalleryHeader />
+      {/* Background Pattern */}
+      <div className='absolute inset-0 opacity-100'>
+        <div
+          className='w-full h-full'
+          style={{
+            backgroundImage: `url(${thankYouLogo.src})`,
+            backgroundColor: `rgb(225, 230, 213)`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        />
+      </div>
 
       {/* Polaroid Cards Gallery */}
-      <div className='relative z-10 min-h-screen bg-linear-to-br from-gray-900 via-black to-gray-800'>
-        {/* Background Pattern */}
-        <div className='absolute inset-0 opacity-10'>
-          <div
-            className='w-full h-full'
-            style={{
-              backgroundImage: `radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
-                               radial-gradient(circle at 75% 75%, white 2px, transparent 2px)`,
-              backgroundSize: '50px 50px',
-            }}
-          />
-        </div>
-
+      <div className='relative z-10 min-h-screen'>
         <div className='relative z-10 pt-20 pb-10 px-6'>
           {/* Main Heading */}
           <div className='text-center mb-12'>
@@ -192,7 +121,7 @@ export default function WishesPage() {
               className='text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 tracking-wider drop-shadow-2xl font-kanit'
               style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
             >
-              รูปจากคำอวยพร
+              คำอวยพร
             </h2>
             <p
               className='text-white/70 text-lg md:text-xl font-kanit'
@@ -225,7 +154,7 @@ export default function WishesPage() {
               {cards && cards.length > 0 ? (
                 <>
                   {/* Cards Grid - 8 per page */}
-                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-8 place-items-center min-h-[600px]'>
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-8 place-items-center min-h-150'>
                     {currentCards.map((card, _index) => {
                       // Generate consistent rotation based on card ID
                       const cardHash = card._id
@@ -276,6 +205,14 @@ export default function WishesPage() {
                                 {card.message ||
                                   'Congratulations on the marriage.'}
                               </p>
+                              <p
+                                className='text-gray-600 text-sm font-kanit line-clamp-3'
+                                style={{
+                                  fontFamily: 'var(--font-kanit), sans-serif',
+                                }}
+                              >
+                                #เบญจเมแต่งแล้วคร้าบบบบบบ
+                              </p>
                             </div>
 
                             {/* Tape Effect */}
@@ -302,7 +239,7 @@ export default function WishesPage() {
                   {/* Page Info */}
                   <div className='text-center mt-8'>
                     <p
-                      className='text-white/60 text-sm font-kanit'
+                      className='text-[#BFC6B4] text-sm font-kanit'
                       style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
                     >
                       หน้าที่ {currentPage + 1} จาก {totalPages} ({cards.length}{' '}
@@ -312,29 +249,28 @@ export default function WishesPage() {
 
                   {/* Navigation Controls */}
                   <div className='flex justify-between items-center mb-8'>
-                    <button
-                      onClick={prevPage}
-                      disabled={currentPage === 0}
-                      className={`p-3 rounded-full transition-all duration-300 ${
-                        currentPage === 0
-                          ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                          : 'bg-white/10 text-white hover:bg-white/20 hover:scale-110'
-                      }`}
-                    >
-                      <svg
-                        className='w-6 h-6'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M15 19l-7-7 7-7'
-                        />
-                      </svg>
-                    </button>
+                    <div className='w-12 flex justify-start'>
+                      {currentPage > 0 && (
+                        <button
+                          onClick={prevPage}
+                          className='p-3 rounded-full transition-all duration-300 bg-[#BFC6B4] text-white hover:bg-[#BFC6B4]/10 hover:scale-110'
+                        >
+                          <svg
+                            className='w-6 h-6'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M15 19l-7-7 7-7'
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
 
                     {/* Page Indicator */}
                     <div className='flex items-center space-x-2'>
@@ -345,35 +281,34 @@ export default function WishesPage() {
                           className={`w-3 h-3 rounded-full transition-all duration-300 ${
                             index === currentPage
                               ? 'bg-white scale-125'
-                              : 'bg-white/30 hover:bg-white/60'
+                              : 'bg-[#BFC6B4]/30 hover:bg-[#BFC6B4]/60'
                           }`}
                         />
                       ))}
                     </div>
 
-                    <button
-                      onClick={nextPage}
-                      disabled={currentPage === totalPages - 1}
-                      className={`p-3 rounded-full transition-all duration-300 ${
-                        currentPage === totalPages - 1
-                          ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                          : 'bg-white/10 text-white hover:bg-white/20 hover:scale-110'
-                      }`}
-                    >
-                      <svg
-                        className='w-6 h-6'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M9 5l7 7-7 7'
-                        />
-                      </svg>
-                    </button>
+                    <div className='w-12 flex justify-end'>
+                      {currentPage < totalPages - 1 && (
+                        <button
+                          onClick={nextPage}
+                          className='p-3 rounded-full transition-all duration-300 bg-[#BFC6B4] text-white hover:bg-[#BFC6B4]/10 hover:scale-110'
+                        >
+                          <svg
+                            className='w-6 h-6'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M9 5l7 7-7 7'
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </>
               ) : (
@@ -455,6 +390,14 @@ export default function WishesPage() {
                   }}
                 >
                   {selectedCard.message}
+                </p>
+                <p
+                  className='text-gray-600 text-lg font-kanit leading-relaxed'
+                  style={{
+                    fontFamily: 'var(--font-kanit), sans-serif',
+                  }}
+                >
+                  #เบญจเมแต่งแล้วคร้าบบบบบบ
                 </p>
               </div>
 

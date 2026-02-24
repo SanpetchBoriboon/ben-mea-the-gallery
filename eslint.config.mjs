@@ -47,6 +47,11 @@ export default [
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',
+        HTMLDivElement: 'readonly',
+        Event: 'readonly',
+        Node: 'readonly',
+        HTMLElement: 'readonly',
+        MouseEvent: 'readonly',
       },
     },
     plugins: {

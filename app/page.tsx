@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import GalleryHeader from './components/GalleryHeader';
 
 interface ApiImage {
   name: string;
@@ -27,16 +28,38 @@ export default function Home() {
   const [images, setImages] = useState<ApiImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showMobileSelector, setShowMobileSelector] = useState(false);
+
+  const CACHE_KEY = 'our-gallery-images-cache';
+  const CACHE_TTL = 1000 * 60 * 5;
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
+        const cachedRaw = window.sessionStorage.getItem(CACHE_KEY);
+        if (cachedRaw) {
+          const cached: { timestamp: number; images: ApiImage[] } =
+            JSON.parse(cachedRaw);
+          const isFresh = Date.now() - cached.timestamp < CACHE_TTL;
+
+          if (isFresh && cached.images?.length) {
+            setImages(cached.images);
+            return;
+          }
+        }
+
         const response = await fetch(
           'http://localhost:3000/api/images?prefix=our-gallery'
         );
         const data: ApiResponse = await response.json();
         setImages(data.images);
+
+        window.sessionStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({
+            timestamp: Date.now(),
+            images: data.images,
+          })
+        );
       } catch {
         // Error fetching images - silent fail
       } finally {
@@ -45,7 +68,7 @@ export default function Home() {
     };
 
     fetchImages();
-  }, []);
+  }, [CACHE_KEY, CACHE_TTL]);
 
   // Auto-slide images every 4 seconds
   useEffect(() => {
@@ -59,110 +82,7 @@ export default function Home() {
   }, [images]);
   return (
     <div className='min-h-screen bg-black relative'>
-      {/* Header Navigation */}
-      <header className='relative z-10 px-6 py-4'>
-        <div className='max-w-7xl mx-auto flex justify-between items-center'>
-          {/* Logo */}
-          <div className='text-center'>
-            <h1
-              className='text-white text-2xl font-bold tracking-wider font-kanit'
-              style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-            >
-              Our Gallery
-            </h1>
-          </div>
-
-          {/* Gallery Selector */}
-          <div className='hidden md:flex'>
-            <select
-              className='bg-black/50 text-white border border-white/30 rounded-lg px-4 py-2 focus:outline-none focus:border-orange-300 backdrop-blur-sm font-kanit'
-              onChange={e => {
-                const value = e.target.value;
-                if (value) {
-                  window.location.href = value;
-                }
-              }}
-              defaultValue=''
-              style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-            >
-              <option
-                value=''
-                disabled
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                เลือกหมวดรูป
-              </option>
-              <option
-                value='/wishes'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากคำอวยพร
-              </option>
-              <option
-                value='/photographer'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากช่างภาพ
-              </option>
-              <option
-                value='/album'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากอัลบัม
-              </option>
-            </select>
-          </div>
-
-          {/* Mobile Selector Button */}
-          <button
-            className='md:hidden text-white'
-            onClick={() => setShowMobileSelector(!showMobileSelector)}
-          >
-            <svg
-              className='w-6 h-6'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M19 9l-7 7-7-7'
-              />
-            </svg>
-          </button>
-        </div>
-
-        {/* Mobile Selector Menu */}
-        {showMobileSelector && (
-          <div className='md:hidden bg-black/90 backdrop-blur-sm mt-4 rounded-lg mx-6'>
-            <div className='px-4 py-4 space-y-3'>
-              <a
-                href='/wishes'
-                className='block w-full text-left text-white hover:text-orange-300 transition-colors py-2 font-kanit'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากคำอวยพร
-              </a>
-              <a
-                href='/photographer'
-                className='block w-full text-left text-white hover:text-orange-300 transition-colors py-2 font-kanit'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากช่างภาพ
-              </a>
-              <a
-                href='/album'
-                className='block w-full text-left text-white hover:text-orange-300 transition-colors py-2 font-kanit'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากอัลบัม
-              </a>
-            </div>
-          </div>
-        )}
-      </header>
+      <GalleryHeader />
 
       {/* Dynamic Gallery Background with Auto-Sliding */}
       <div className='absolute inset-0 opacity-100'>
