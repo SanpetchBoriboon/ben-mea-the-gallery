@@ -79,10 +79,7 @@ export default function GalleryHeader() {
           </button>
 
           {showDropdown && (
-            <div
-              className='fixed bg-white rounded-xl shadow-2xl p-3 space-y-2 z-50 w-72'
-              style={{ top: '70px', right: '24px' }}
-            >
+            <div className='absolute top-full left-0 mt-2 bg-white rounded-xl shadow-2xl p-3 space-y-2 z-50 w-72'>
               {menuItems.map(item => (
                 <button
                   key={item.value}
