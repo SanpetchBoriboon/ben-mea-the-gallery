@@ -23,17 +23,16 @@ interface ApiResponse {
   prefix: string;
 }
 
-export default function Home() {
+export default function AlbumPage() {
   const [images, setImages] = useState<ApiImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showMobileSelector, setShowMobileSelector] = useState(false);
 
   useEffect(() => {
     const fetchImages = async () => {
       try {
         const response = await fetch(
-          'http://localhost:3000/api/images?prefix=our-gallery'
+          'http://localhost:3000/api/images?prefix=album'
         );
         const data: ApiResponse = await response.json();
         setImages(data.images);
@@ -57,6 +56,7 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [images]);
+
   return (
     <div className='min-h-screen bg-black relative'>
       {/* Header Navigation */}
@@ -64,12 +64,13 @@ export default function Home() {
         <div className='max-w-7xl mx-auto flex justify-between items-center'>
           {/* Logo */}
           <div className='text-center'>
-            <h1
-              className='text-white text-2xl font-bold tracking-wider font-kanit'
+            <a
+              href='/'
+              className='text-white text-2xl font-bold tracking-wider hover:text-orange-300 transition-colors font-kanit'
               style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
             >
               Our Gallery
-            </h1>
+            </a>
           </div>
 
           {/* Gallery Selector */}
@@ -82,15 +83,14 @@ export default function Home() {
                   window.location.href = value;
                 }
               }}
-              defaultValue=''
+              value='/album'
               style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
             >
               <option
-                value=''
-                disabled
+                value='/'
                 style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
               >
-                เลือกหมวดรูป
+                หน้าแรก
               </option>
               <option
                 value='/wishes'
@@ -113,10 +113,10 @@ export default function Home() {
             </select>
           </div>
 
-          {/* Mobile Selector Button */}
+          {/* Mobile Back Button */}
           <button
             className='md:hidden text-white'
-            onClick={() => setShowMobileSelector(!showMobileSelector)}
+            onClick={() => (window.location.href = '/')}
           >
             <svg
               className='w-6 h-6'
@@ -128,40 +128,11 @@ export default function Home() {
                 strokeLinecap='round'
                 strokeLinejoin='round'
                 strokeWidth={2}
-                d='M19 9l-7 7-7-7'
+                d='M10 19l-7-7m0 0l7-7m-7 7h18'
               />
             </svg>
           </button>
         </div>
-
-        {/* Mobile Selector Menu */}
-        {showMobileSelector && (
-          <div className='md:hidden bg-black/90 backdrop-blur-sm mt-4 rounded-lg mx-6'>
-            <div className='px-4 py-4 space-y-3'>
-              <a
-                href='/wishes'
-                className='block w-full text-left text-white hover:text-orange-300 transition-colors py-2 font-kanit'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากคำอวยพร
-              </a>
-              <a
-                href='/photographer'
-                className='block w-full text-left text-white hover:text-orange-300 transition-colors py-2 font-kanit'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากช่างภาพ
-              </a>
-              <a
-                href='/album'
-                className='block w-full text-left text-white hover:text-orange-300 transition-colors py-2 font-kanit'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-              >
-                รูปจากอัลบัม
-              </a>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Dynamic Gallery Background with Auto-Sliding */}
@@ -207,19 +178,9 @@ export default function Home() {
       <div className='relative z-10 flex flex-col items-center justify-end min-h-[calc(100vh-120px)] px-6'>
         <div className='text-center max-w-4xl mx-auto'>
           {/* Main Heading */}
-          <h2
-            className='text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-wider drop-shadow-2xl shadow-black font-kanit'
-            style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
-          >
-            Our gallery
+          <h2 className='text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-wider drop-shadow-2xl shadow-black'>
+            รูปจากอัลบัม
           </h2>
-
-          {/* Subtitle */}
-          {/* <p className="text-white/90 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12">
-            IS A BRAND NEW VISUAL ARTS INSTITUTION BUILDING UPON A SOLID FOUNDATION
-            <br />
-            OF SCHOLARSHIP AND EXPERIENCE
-          </p> */}
 
           {/* Dynamic Pagination Dots */}
           <div className='flex justify-center space-x-3 mb-8'>
@@ -247,9 +208,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      {/* Decorative Elements
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-black/20"></div> */}
     </div>
   );
 }
