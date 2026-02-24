@@ -28,7 +28,9 @@ export default function WishesPage() {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/cards');
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/cards`
+        );
         const data: ApiResponse = await response.json();
 
         setCards(data.cards);

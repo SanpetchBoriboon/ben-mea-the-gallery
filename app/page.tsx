@@ -48,7 +48,7 @@ export default function Home() {
         }
 
         const response = await fetch(
-          'http://localhost:3000/api/images?prefix=our-gallery'
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/images?prefix=our-gallery`
         );
         const data: ApiResponse = await response.json();
         setImages(data.images);

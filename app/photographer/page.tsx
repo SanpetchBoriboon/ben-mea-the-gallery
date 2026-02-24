@@ -33,7 +33,7 @@ export default function PhotographerPage() {
     const fetchImages = async () => {
       try {
         const response = await fetch(
-          'http://localhost:3000/api/images?prefix=photographer'
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/images?prefix=photographer`
         );
         const data: ApiResponse = await response.json();
         setImages(data.images);

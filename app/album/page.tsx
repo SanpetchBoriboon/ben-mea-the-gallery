@@ -51,7 +51,7 @@ export default function AlbumPage() {
         }
 
         const response = await fetch(
-          'http://localhost:3000/api/images?prefix=journey-of-us-images'
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/images?prefix=journey-of-us-images`
         );
         const data: ApiResponse = await response.json();
         setImages(data.images);
