@@ -6,12 +6,16 @@ import { useEffect, useRef, useState } from 'react';
 
 const menuItems = [
   { value: '/', label: 'หน้าหลัก' },
-  { value: '/wishes', label: 'รูปจากคำอวยพร' },
-  { value: '/photographer', label: 'รูปจากช่างภาพ' },
-  { value: '/album', label: 'รูปจากอัลบัม' },
+  { value: '/album', label: 'อัลบัม' },
+  { value: '/wishes', label: 'รูปและคำอวยพร' },
+  { value: '/photographer', label: 'ช่างภาพ' },
 ];
 
-export default function GalleryHeader() {
+export default function GalleryHeader({
+  titleColor = '#ffffff',
+}: {
+  titleColor?: string;
+}) {
   const pathname = usePathname();
   const [showMobileSelector, setShowMobileSelector] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -49,8 +53,11 @@ export default function GalleryHeader() {
         <div className='text-center'>
           <a
             href='/'
-            className='text-white text-3xl drop-shadow-2xl text-shadow-2xl font-bold tracking-wider hover:text-[#BFC6B4] transition-colors font-kanit '
-            style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
+            className='text-3xl drop-shadow-2xl font-bold tracking-wider transition-colors font-kanit'
+            style={{
+              fontFamily: 'var(--font-kanit), sans-serif',
+              color: titleColor,
+            }}
           >
             Our Gallery
           </a>
@@ -59,8 +66,11 @@ export default function GalleryHeader() {
         <div className='hidden md:flex relative' ref={dropdownRef}>
           <button
             onClick={() => setShowDropdown(!showDropdown)}
-            className='bg-[#BFC6B4]/20 hover:bg-[#BFC6B4]/30 text-white border border-[#BFC6B4]/50 rounded-lg px-6 py-2 focus:outline-none backdrop-blur-sm font-kanit flex items-center gap-2 transition-all'
-            style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
+            className='bg-[#BFC6B4]/20 hover:bg-[#BFC6B4]/30 font-semibold border border-[#BFC6B4]/50 rounded-lg px-6 py-2 focus:outline-none backdrop-blur-sm font-kanit flex items-center gap-2 transition-all'
+            style={{
+              fontFamily: 'var(--font-kanit), sans-serif',
+              color: titleColor,
+            }}
           >
             {desktopValue.label}
             <svg

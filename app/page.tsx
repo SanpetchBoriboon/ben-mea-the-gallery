@@ -30,7 +30,7 @@ export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const CACHE_KEY = 'our-gallery-images-cache';
-  const CACHE_TTL = 1000 * 60 * 5;
+  const CACHE_TTL = 1000 * 60 * 60;
 
   useEffect(() => {
     const fetchImages = async () => {
