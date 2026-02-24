@@ -24,7 +24,6 @@ interface ApiResponse {
   prefix: string;
 }
 
-const ITEMS_PER_PAGE = 9;
 const CACHE_KEY = 'album-images-cache';
 const CACHE_TTL = 1000 * 60 * 60; // 60 minutes
 
@@ -33,6 +32,14 @@ export default function AlbumPage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState<ApiImage | null>(null);
+  const [itemsPerPage, setItemsPerPage] = useState(9);
+
+  useEffect(() => {
+    const update = () => setItemsPerPage(window.innerWidth < 768 ? 4 : 9);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -80,10 +87,10 @@ export default function AlbumPage() {
     }
   }, [selectedImage]);
 
-  const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(images.length / itemsPerPage);
   const currentImages = images.slice(
-    currentPage * ITEMS_PER_PAGE,
-    (currentPage + 1) * ITEMS_PER_PAGE
+    currentPage * itemsPerPage,
+    (currentPage + 1) * itemsPerPage
   );
 
   const getRotation = (name: string) => {
@@ -95,11 +102,11 @@ export default function AlbumPage() {
     <div className='min-h-screen bg-[#F5F0EB] relative'>
       <GalleryHeader titleColor='text-gray-800' />
 
-      <div className='relative z-10 pt-8 pb-16 px-6'>
+      <div className='relative z-10 pt-8 pb-16 px-4 sm:px-6'>
         {/* Heading */}
         <div className='text-center mb-10'>
           <h2
-            className='text-5xl md:text-6xl font-bold text-gray-800 mb-3 tracking-wider font-kanit'
+            className='text-3xl sm:text-5xl md:text-6xl font-bold text-gray-800 mb-3 tracking-wider font-kanit'
             style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
           >
             Journey of us
@@ -113,7 +120,7 @@ export default function AlbumPage() {
         </div>
 
         {loading ? (
-          <div className='max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-8'>
+          <div className='max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
             {[...Array(9)].map((_, i) => (
               <div
                 key={i}
@@ -128,7 +135,7 @@ export default function AlbumPage() {
         ) : images.length > 0 ? (
           <>
             {/* Postcard Grid */}
-            <div className='max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-10 place-items-center'>
+            <div className='max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 place-items-center'>
               {currentImages.map(image => {
                 const rotation = getRotation(image.name);
                 const dateStr = image.name.split('/')[1];
@@ -136,7 +143,7 @@ export default function AlbumPage() {
                 return (
                   <div
                     key={image.name}
-                    className='group cursor-pointer'
+                    className='group cursor-pointer w-full'
                     style={{
                       transform: `rotate(${rotation}deg)`,
                       transformOrigin: 'center center',
@@ -144,7 +151,7 @@ export default function AlbumPage() {
                     onClick={() => setSelectedImage(image)}
                   >
                     {/* Postcard */}
-                    <div className='bg-white rounded-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 p-3 pb-8 relative w-75'>
+                    <div className='bg-white rounded-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 p-3 pb-8 relative w-full'>
                       {/* Image */}
                       <div className='overflow-hidden rounded-sm'>
                         <div
@@ -272,7 +279,7 @@ export default function AlbumPage() {
               <img
                 src={selectedImage.signedUrl}
                 alt={selectedImage.name}
-                className='w-full h-auto max-h-[75vh] object-contain rounded-sm'
+                className='w-full h-auto max-h-[60vh] sm:max-h-[75vh] object-contain rounded-sm'
               />
               <p
                 className='text-center text-gray-400 text-sm mt-4 font-kanit'

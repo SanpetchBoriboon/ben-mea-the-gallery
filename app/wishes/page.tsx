@@ -23,7 +23,14 @@ export default function WishesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedCard, setSelectedCard] = useState<ApiImage | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 8;
+  const [itemsPerPage, setItemsPerPage] = useState(8);
+
+  useEffect(() => {
+    const update = () => setItemsPerPage(window.innerWidth < 768 ? 4 : 8);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -116,11 +123,11 @@ export default function WishesPage() {
 
       {/* Polaroid Cards Gallery */}
       <div className='relative z-10 min-h-screen'>
-        <div className='relative z-10 pt-20 pb-10 px-6'>
+        <div className='relative z-10 pt-20 pb-10 px-4 sm:px-6'>
           {/* Main Heading */}
           <div className='text-center mb-12'>
             <h2
-              className='text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 tracking-wider drop-shadow-2xl font-kanit'
+              className='text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 tracking-wider drop-shadow-2xl font-kanit'
               style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
             >
               คำอวยพร
@@ -156,7 +163,7 @@ export default function WishesPage() {
               {cards && cards.length > 0 ? (
                 <>
                   {/* Cards Grid - 8 per page */}
-                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-8 place-items-center min-h-150'>
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-8 place-items-center'>
                     {currentCards.map((card, _index) => {
                       // Generate consistent rotation based on card ID
                       const cardHash = card._id
@@ -167,7 +174,7 @@ export default function WishesPage() {
                       return (
                         <div
                           key={card._id}
-                          className='group cursor-pointer'
+                          className='group cursor-pointer w-full'
                           style={{
                             transform: `rotate(${cardRotation}deg)`,
                             transformOrigin: 'center center',
