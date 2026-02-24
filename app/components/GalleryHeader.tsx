@@ -132,7 +132,8 @@ export default function GalleryHeader({
         </div>
 
         <button
-          className='md:hidden text-white'
+          className='md:hidden'
+          style={{ color: titleColor }}
           onClick={() => setShowMobileSelector(!showMobileSelector)}
         >
           <svg
