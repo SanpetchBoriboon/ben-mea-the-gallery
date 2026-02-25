@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import miniLogo from '../../src/images/mini-logo.png';
 import thankYouLogo from '../../src/images/thank-you-logo.backup.png';
 import GalleryHeader from '../components/GalleryHeader';
 
@@ -188,7 +189,7 @@ export default function WishesPage() {
                               <div
                                 className='aspect-4/5 bg-cover bg-center group-hover:scale-110 transition-transform duration-500'
                                 style={{
-                                  backgroundImage: `url(${card.imageUrl || 'https://storage.googleapis.com/wedding-day-5a5a1.firebasestorage.app/photo-all-wishes/3dba1dea-983a-45a5-a998-009d86e1a924.webp'})`,
+                                  backgroundImage: `url(${card.imageUrl || miniLogo.src})`,
                                 }}
                               />
                               {/* Image Overlay */}
@@ -373,10 +374,7 @@ export default function WishesPage() {
               {/* Large image */}
               <div className='relative mb-6 overflow-hidden rounded'>
                 <img
-                  src={
-                    selectedCard.imageUrl ??
-                    'https://storage.googleapis.com/wedding-day-5a5a1.firebasestorage.app/photo-all-wishes/3dba1dea-983a-45a5-a998-009d86e1a924.webp'
-                  }
+                  src={selectedCard.imageUrl ?? miniLogo.src}
                   alt={selectedCard.title}
                   className='w-full h-auto max-h-[60vh] object-cover'
                 />
