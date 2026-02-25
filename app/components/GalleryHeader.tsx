@@ -8,7 +8,7 @@ const menuItems = [
   { value: '/', label: 'หน้าหลัก' },
   { value: '/album', label: 'อัลบัม' },
   { value: '/wishes', label: 'รูปและคำอวยพร' },
-  { value: '/photographer', label: 'ช่างภาพ' },
+  // { value: '/photographer', label: 'ช่างภาพ' },
 ];
 
 export default function GalleryHeader({

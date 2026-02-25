@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for ben-mea-the-gallery on 2026-02-24T16:37:00+07:00
+# fly.toml app configuration file generated for ben-mae-the-gallery on 2026-02-26T03:28:04+07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -7,8 +7,6 @@ app = 'ben-mae-the-gallery'
 primary_region = 'sin'
 
 [build]
-  [build.args]
-    NEXT_PUBLIC_API_BASE_URL = "https://wedding-card-online-service.fly.dev"
 
 [http_service]
   internal_port = 8080
@@ -20,5 +18,6 @@ primary_region = 'sin'
 
 [[vm]]
   memory = '1gb'
+  cpu_kind = 'shared'
   cpus = 1
   memory_mb = 1024
