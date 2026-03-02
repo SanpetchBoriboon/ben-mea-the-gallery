@@ -246,7 +246,7 @@ export default function GalleryHeader({
                               </div>
                               {isSelected && (
                                 <svg
-                                  className='w-4 h-4 text-[#BFC6B4] flex-shrink-0 ml-2'
+                                  className='w-4 h-4 text-[#BFC6B4] shrink-0 ml-2'
                                   fill='currentColor'
                                   viewBox='0 0 20 20'
                                 ></svg>
@@ -364,7 +364,7 @@ export default function GalleryHeader({
                             </div>
                             {isSelected && (
                               <svg
-                                className='w-4 h-4 text-blue-400 flex-shrink-0'
+                                className='w-4 h-4 text-blue-400 shrink-0'
                                 fill='currentColor'
                                 viewBox='0 0 20 20'
                               ></svg>
