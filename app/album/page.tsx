@@ -1,5 +1,6 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import GalleryHeader from '../components/GalleryHeader';
 
@@ -24,10 +25,38 @@ interface ApiResponse {
   prefix: string;
 }
 
-const CACHE_KEY = 'album-images-cache';
 const CACHE_TTL = 1000 * 60 * 60; // 60 minutes
 
+const ALBUMS = [
+  {
+    id: 'journey-of-us-images',
+    name: 'Journey of us',
+    description: 'ภาพความทรงจำของเรา',
+  },
+  {
+    id: 'moment-of-photos/personal-digital-camera',
+    name: 'Personal Digital Camera',
+    description: 'ช่วงเวลาส่วนตัว',
+  },
+  {
+    id: 'moment-of-photos/mobile-photo',
+    name: 'Mobile Photo',
+    description: 'ช่วงเวลาส่วนตัว',
+  },
+];
+
 export default function AlbumPage() {
+  const searchParams = useSearchParams();
+
+  const selectedParam = searchParams.get('selected');
+
+  // Initialize with URL parameter or default to first album
+  const initialAlbum =
+    selectedParam && ALBUMS.some(album => album.id === selectedParam)
+      ? selectedParam
+      : ALBUMS[0].id;
+
+  const [selectedAlbum] = useState(initialAlbum);
   const [images, setImages] = useState<ApiImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -43,8 +72,12 @@ export default function AlbumPage() {
 
   useEffect(() => {
     const fetchImages = async () => {
+      setLoading(true);
       try {
-        const cachedRaw = window.sessionStorage.getItem(CACHE_KEY);
+        // Sanitize cache key to handle special characters
+        const cacheKey = `album-images-cache-${selectedAlbum.replace(/[\/\s]/g, '_')}`;
+        const cachedRaw = window.sessionStorage.getItem(cacheKey);
+
         if (cachedRaw) {
           const cached = JSON.parse(cachedRaw) as {
             images: ApiImage[];
@@ -58,40 +91,97 @@ export default function AlbumPage() {
         }
 
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/images?prefix=journey-of-us-images`
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/images?prefix=${selectedAlbum}`
         );
         const data: ApiResponse = await response.json();
-        setImages(data.images);
-        window.sessionStorage.setItem(
-          CACHE_KEY,
-          JSON.stringify({ images: data.images, timestamp: Date.now() })
-        );
+
+        if (data.images) {
+          setImages(data.images);
+          window.sessionStorage.setItem(
+            cacheKey,
+            JSON.stringify({ images: data.images, timestamp: Date.now() })
+          );
+        }
       } catch {
         // Error fetching images - silent fail
+        setImages([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchImages();
-  }, []);
+  }, [selectedAlbum]);
+
+  // Reset page when album changes
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [selectedAlbum]);
 
   // Escape key to close modal
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setSelectedImage(null);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedImage) return;
+
+      if (e.key === 'Escape') {
+        setSelectedImage(null);
+      } else if (e.key === 'ArrowLeft') {
+        navigateToPrevious();
+      } else if (e.key === 'ArrowRight') {
+        navigateToNext();
+      }
     };
-    if (selectedImage) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImage, images, currentPage, itemsPerPage]);
+
+  const getCurrentImageIndex = () => {
+    return images.findIndex(img => img.name === selectedImage?.name);
+  };
+
+  const getCurrentImagePageIndex = (globalIndex: number) => {
+    return Math.floor(globalIndex / itemsPerPage);
+  };
+
+  const navigateToNext = () => {
+    const currentIndex = getCurrentImageIndex();
+    if (currentIndex < images.length - 1) {
+      const nextIndex = currentIndex + 1;
+      const nextPageIndex = getCurrentImagePageIndex(nextIndex);
+
+      // If moving to a new page, update current page
+      if (nextPageIndex !== currentPage) {
+        setCurrentPage(nextPageIndex);
+      }
+
+      setSelectedImage(images[nextIndex]);
     }
-  }, [selectedImage]);
+  };
+
+  const navigateToPrevious = () => {
+    const currentIndex = getCurrentImageIndex();
+    if (currentIndex > 0) {
+      const prevIndex = currentIndex - 1;
+      const prevPageIndex = getCurrentImagePageIndex(prevIndex);
+
+      // If moving to a new page, update current page
+      if (prevPageIndex !== currentPage) {
+        setCurrentPage(prevPageIndex);
+      }
+
+      setSelectedImage(images[prevIndex]);
+    }
+  };
 
   const totalPages = Math.ceil(images.length / itemsPerPage);
   const currentImages = images.slice(
     currentPage * itemsPerPage,
     (currentPage + 1) * itemsPerPage
   );
+
+  const currentAlbum =
+    ALBUMS.find(album => album.id === selectedAlbum) || ALBUMS[0];
 
   const getRotation = (name: string) => {
     const hash = name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
@@ -109,13 +199,13 @@ export default function AlbumPage() {
             className='text-3xl sm:text-5xl md:text-6xl font-bold text-gray-800 mb-3 tracking-wider font-kanit'
             style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
           >
-            Journey of us
+            {currentAlbum.name}
           </h2>
           <p
             className='text-gray-500 text-lg font-kanit'
             style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
           >
-            ภาพความทรงจำของเรา
+            {currentAlbum.description}
           </p>
         </div>
 
@@ -138,7 +228,7 @@ export default function AlbumPage() {
             <div className='max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 place-items-center'>
               {currentImages.map(image => {
                 const rotation = getRotation(image.name);
-                const dateStr = image.name.split('/')[1];
+                // const dateStr = image.name.split('/')[1];
 
                 return (
                   <div
@@ -167,7 +257,7 @@ export default function AlbumPage() {
                             fontFamily: 'var(--font-kanit), sans-serif',
                           }}
                         >
-                          {dateStr}
+                          #เบญจเมแต่งแล้วครับ
                         </p>
                         <div className='w-6 h-6 border border-gray-300 rounded-sm opacity-40' />
                       </div>
@@ -255,14 +345,15 @@ export default function AlbumPage() {
 
       {/* Modal */}
       {selectedImage && (
-        <div className='fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4'>
-          <div className='relative max-w-3xl w-full'>
+        <div className='fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4'>
+          <div className='relative max-w-5xl w-full h-full flex items-center'>
+            {/* Close Button */}
             <button
               onClick={() => setSelectedImage(null)}
-              className='absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors'
+              className='absolute top-4 right-4 z-10 text-white hover:text-gray-300 transition-colors bg-black/20 rounded-full p-2'
             >
               <svg
-                className='w-8 h-8'
+                className='w-6 h-6'
                 fill='none'
                 stroke='currentColor'
                 viewBox='0 0 24 24'
@@ -275,26 +366,73 @@ export default function AlbumPage() {
                 />
               </svg>
             </button>
-            <div className='bg-white rounded-sm shadow-2xl p-4 pb-10'>
-              <img
-                src={selectedImage.signedUrl}
-                alt={selectedImage.name}
-                className='w-full h-auto max-h-[60vh] sm:max-h-[75vh] object-contain rounded-sm'
-              />
-              <p
-                className='text-center text-gray-400 text-sm mt-4 font-kanit'
-                style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
+
+            {/* Previous Button */}
+            {getCurrentImageIndex() > 0 && (
+              <button
+                onClick={navigateToPrevious}
+                className='absolute left-4 top-1/2 -translate-y-1/2 z-10 text-white hover:text-gray-300 transition-all bg-black/20 hover:bg-black/40 rounded-full p-3'
               >
-                {new Date(selectedImage.timeCreated).toLocaleDateString(
-                  'th-TH',
-                  {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  }
-                )}
-              </p>
+                <svg
+                  className='w-6 h-6'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M15 19l-7-7 7-7'
+                  />
+                </svg>
+              </button>
+            )}
+
+            {/* Next Button */}
+            {getCurrentImageIndex() < images.length - 1 && (
+              <button
+                onClick={navigateToNext}
+                className='absolute right-4 top-1/2 -translate-y-1/2 z-10 text-white hover:text-gray-300 transition-all bg-black/20 hover:bg-black/40 rounded-full p-3'
+              >
+                <svg
+                  className='w-6 h-6'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M9 5l7 7-7 7'
+                  />
+                </svg>
+              </button>
+            )}
+
+            {/* Image Container */}
+            <div className='w-full h-full flex items-center justify-center'>
+              <div className='relative max-w-full max-h-full'>
+                <img
+                  src={selectedImage.signedUrl}
+                  alt={selectedImage.name}
+                  className='max-w-full max-h-[80vh] sm:max-h-[85vh] object-contain rounded-lg shadow-2xl'
+                />
+
+                {/* Image Info Overlay */}
+                <div className='absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full backdrop-blur-sm'>
+                  <p
+                    className='text-center text-sm font-kanit'
+                    style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
+                  >
+                    {getCurrentImageIndex() + 1} / {images.length}
+                  </p>
+                </div>
+              </div>
             </div>
+
+            {/* Background click to close */}
             <div
               className='absolute inset-0 -z-10'
               onClick={() => setSelectedImage(null)}

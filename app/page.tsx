@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import GalleryHeader from './components/GalleryHeader';
 
@@ -24,10 +25,32 @@ interface ApiResponse {
   prefix: string;
 }
 
+const ALBUMS = [
+  {
+    id: 'journey-of-us-images',
+    name: 'Journey of us',
+    description: 'ภาพความทรงจำของเรา',
+  },
+  {
+    id: 'moment-of-photos/personal-digital-camera',
+    name: 'Personal Digital Camera',
+    description: 'ช่วงเวลาส่วนตัว',
+  },
+  {
+    id: 'moment-of-photos/mobile-photo',
+    name: 'Mobile Photo',
+    description: 'ช่วงเวลาส่วนตัว',
+  },
+];
+
 export default function Home() {
+  const router = useRouter();
   const [images, setImages] = useState<ApiImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [albumPreviews, setAlbumPreviews] = useState<{
+    [key: string]: ApiImage[];
+  }>({});
 
   const CACHE_KEY = 'our-gallery-images-cache';
   const CACHE_TTL = 1000 * 60 * 60;
@@ -69,6 +92,55 @@ export default function Home() {
 
     fetchImages();
   }, [CACHE_KEY, CACHE_TTL]);
+
+  // Fetch album previews
+  useEffect(() => {
+    const fetchAlbumPreviews = async () => {
+      const previews: { [key: string]: ApiImage[] } = {};
+
+      for (const album of ALBUMS) {
+        try {
+          const cacheKey = `album-preview-${album.id.replace(/[\/\s]/g, '_')}`;
+          const cachedRaw = window.sessionStorage.getItem(cacheKey);
+
+          if (cachedRaw) {
+            const cached = JSON.parse(cachedRaw) as {
+              images: ApiImage[];
+              timestamp: number;
+            };
+            if (Date.now() - cached.timestamp < CACHE_TTL) {
+              previews[album.id] = cached.images.slice(0, 4); // Get first 4 images
+              continue;
+            }
+          }
+
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/images?prefix=${album.id}`
+          );
+          const data: ApiResponse = await response.json();
+
+          if (data.images) {
+            previews[album.id] = data.images.slice(0, 4); // Get first 4 images
+            window.sessionStorage.setItem(
+              cacheKey,
+              JSON.stringify({ images: data.images, timestamp: Date.now() })
+            );
+          }
+        } catch (error) {
+          console.error(`Error fetching preview for ${album.name}:`, error);
+          previews[album.id] = [];
+        }
+      }
+
+      setAlbumPreviews(previews);
+    };
+
+    fetchAlbumPreviews();
+  }, []);
+
+  const navigateToAlbum = (albumId: string) => {
+    router.push(`/album?selected=${encodeURIComponent(albumId)}`);
+  };
 
   // Auto-slide images every 4 seconds
   useEffect(() => {
@@ -131,7 +203,7 @@ export default function Home() {
             className='text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-6 tracking-wider drop-shadow-2xl shadow-black font-kanit'
             style={{ fontFamily: 'var(--font-kanit), sans-serif' }}
           >
-            Our gallery
+            Albums Collection
           </h2>
 
           {/* Subtitle */}
@@ -140,30 +212,81 @@ export default function Home() {
             <br />
             OF SCHOLARSHIP AND EXPERIENCE
           </p> */}
+          {/* Album Previews Section */}
+          <div className='relative z-10 px-6 pb-16'>
+            <div className='max-w-6xl mx-auto'>
+              <div className='flex flex-col sm:flex-row gap-6 sm:gap-8 overflow-x-auto pb-4'>
+                {ALBUMS.map(album => (
+                  <div
+                    key={album.id}
+                    onClick={() => navigateToAlbum(album.id)}
+                    className='group cursor-pointer flex-shrink-0 w-full sm:w-80 md:w-96'
+                  >
+                    <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-all duration-300 border border-white/20 h-full'>
+                      <div className='mb-6'>
+                        <h4
+                          className='text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-gray-200 transition-colors font-kanit'
+                          style={{
+                            fontFamily: 'var(--font-kanit), sans-serif',
+                          }}
+                        >
+                          {album.name}
+                        </h4>
+                        <p
+                          className='text-white/80 font-kanit text-sm md:text-base'
+                          style={{
+                            fontFamily: 'var(--font-kanit), sans-serif',
+                          }}
+                        >
+                          {album.description}
+                        </p>
+                      </div>
 
-          {/* Dynamic Pagination Dots */}
-          <div className='flex justify-center space-x-3 mb-8'>
-            {loading ? (
-              // Loading dots
-              <>
-                <div className='w-3 h-3 rounded-full bg-white animate-pulse'></div>
-                <div className='w-3 h-3 rounded-full bg-white/50 animate-pulse'></div>
-                <div className='w-3 h-3 rounded-full bg-white/50 animate-pulse'></div>
-              </>
-            ) : (
-              // Dynamic dots based on images
-              images.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentImageIndex
-                      ? 'bg-white scale-125'
-                      : 'bg-white/50 hover:bg-white/80'
-                  }`}
-                />
-              ))
-            )}
+                      <div className='grid grid-cols-2 gap-2 mb-4'>
+                        {albumPreviews[album.id]
+                          ? albumPreviews[album.id].map((image, _index) => (
+                              <div
+                                key={image.name}
+                                className='aspect-square bg-cover bg-center rounded group-hover:scale-105 transition-transform duration-300'
+                                style={{
+                                  backgroundImage: `url(${image.signedUrl})`,
+                                }}
+                              />
+                            ))
+                          : // Loading placeholders
+                            Array.from({ length: 4 }).map((_, index) => (
+                              <div
+                                key={index}
+                                className='aspect-square bg-gray-500/30 rounded animate-pulse'
+                              />
+                            ))}
+                      </div>
+
+                      <div className='flex items-center justify-between'>
+                        <span className='text-white/60 text-sm font-kanit'>
+                          {albumPreviews[album.id]?.length || 0} photos
+                        </span>
+                        <div className='text-white group-hover:translate-x-1 transition-transform duration-300'>
+                          <svg
+                            className='w-5 h-5'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M9 5l7 7-7 7'
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
