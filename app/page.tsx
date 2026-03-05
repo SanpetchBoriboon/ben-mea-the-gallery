@@ -126,8 +126,8 @@ export default function Home() {
               JSON.stringify({ images: data.images, timestamp: Date.now() })
             );
           }
-        } catch (error) {
-          console.error(`Error fetching preview for ${album.name}:`, error);
+        } catch {
+          // Silent fail for preview fetch errors
           previews[album.id] = [];
         }
       }
