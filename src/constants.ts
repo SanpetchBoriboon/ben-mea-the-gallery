@@ -14,4 +14,9 @@ export const ALBUMS = [
     name: 'Mobile Photo',
     description: 'ช่วงเวลาส่วนตัว',
   },
+  {
+    id: 'moment-of-photos/personal-film-camera',
+    name: 'Film Photo',
+    description: 'ช่วงเวลาส่วนตัว',
+  },
 ];

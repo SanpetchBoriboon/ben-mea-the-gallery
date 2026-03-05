@@ -42,16 +42,7 @@ export default function AlbumPage() {
   const [selectedAlbum] = useState(initialAlbum);
   const [images, setImages] = useState<ApiImage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(0);
   const [selectedImage, setSelectedImage] = useState<ApiImage | null>(null);
-  const [itemsPerPage, setItemsPerPage] = useState(9);
-
-  useEffect(() => {
-    const update = () => setItemsPerPage(window.innerWidth < 768 ? 4 : 9);
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -96,11 +87,6 @@ export default function AlbumPage() {
     fetchImages();
   }, [selectedAlbum]);
 
-  // Reset page when album changes
-  useEffect(() => {
-    setCurrentPage(0);
-  }, [selectedAlbum]);
-
   // Escape key to close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -117,51 +103,25 @@ export default function AlbumPage() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedImage, images, currentPage, itemsPerPage]);
+  }, [selectedImage, images]);
 
   const getCurrentImageIndex = () => {
     return images.findIndex(img => img.name === selectedImage?.name);
   };
 
-  const getCurrentImagePageIndex = (globalIndex: number) => {
-    return Math.floor(globalIndex / itemsPerPage);
-  };
-
   const navigateToNext = () => {
     const currentIndex = getCurrentImageIndex();
     if (currentIndex < images.length - 1) {
-      const nextIndex = currentIndex + 1;
-      const nextPageIndex = getCurrentImagePageIndex(nextIndex);
-
-      // If moving to a new page, update current page
-      if (nextPageIndex !== currentPage) {
-        setCurrentPage(nextPageIndex);
-      }
-
-      setSelectedImage(images[nextIndex]);
+      setSelectedImage(images[currentIndex + 1]);
     }
   };
 
   const navigateToPrevious = () => {
     const currentIndex = getCurrentImageIndex();
     if (currentIndex > 0) {
-      const prevIndex = currentIndex - 1;
-      const prevPageIndex = getCurrentImagePageIndex(prevIndex);
-
-      // If moving to a new page, update current page
-      if (prevPageIndex !== currentPage) {
-        setCurrentPage(prevPageIndex);
-      }
-
-      setSelectedImage(images[prevIndex]);
+      setSelectedImage(images[currentIndex - 1]);
     }
   };
-
-  const totalPages = Math.ceil(images.length / itemsPerPage);
-  const currentImages = images.slice(
-    currentPage * itemsPerPage,
-    (currentPage + 1) * itemsPerPage
-  );
 
   const currentAlbum =
     ALBUMS.find(album => album.id === selectedAlbum) || ALBUMS[0];
@@ -209,67 +169,6 @@ export default function AlbumPage() {
           </div>
         </div>
 
-        {/* Fixed Pagination */}
-        {totalPages > 1 && (
-          <div className='px-4 py-3'>
-            <div className='flex justify-center items-center gap-4'>
-              {currentPage > 0 && (
-                <button
-                  onClick={() => setCurrentPage(p => p - 1)}
-                  className='p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all text-white'
-                >
-                  <svg
-                    className='w-4 h-4'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M15 19l-7-7 7-7'
-                    />
-                  </svg>
-                </button>
-              )}
-              <div className='flex gap-2'>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentPage(i)}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${
-                      i === currentPage
-                        ? 'bg-white scale-125'
-                        : 'bg-white/50 hover:bg-white/70'
-                    }`}
-                  />
-                ))}
-              </div>
-              {currentPage < totalPages - 1 && (
-                <button
-                  onClick={() => setCurrentPage(p => p + 1)}
-                  className='p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all text-white'
-                >
-                  <svg
-                    className='w-4 h-4'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M9 5l7 7-7 7'
-                    />
-                  </svg>
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* Scrollable Content Area */}
         <div className='flex-1 overflow-y-auto pt-6 pb-16 px-4 sm:px-6'>
           {loading ? (
@@ -289,7 +188,7 @@ export default function AlbumPage() {
             <>
               {/* Postcard Grid */}
               <div className='max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10 place-items-center'>
-                {currentImages.map(image => {
+                {images.map(image => {
                   const rotation = getRotation(image.name);
                   // const dateStr = image.name.split('/')[1];
 

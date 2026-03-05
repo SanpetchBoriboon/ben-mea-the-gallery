@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { ALBUMS } from '../src/constants';
 import GalleryHeader from './components/GalleryHeader';
 
 interface ApiImage {
@@ -24,24 +25,6 @@ interface ApiResponse {
   count: number;
   prefix: string;
 }
-
-const ALBUMS = [
-  {
-    id: 'journey-of-us-images',
-    name: 'Journey of us',
-    description: 'ภาพความทรงจำของเรา',
-  },
-  {
-    id: 'moment-of-photos/personal-digital-camera',
-    name: 'Personal Digital Camera',
-    description: 'ช่วงเวลาส่วนตัว',
-  },
-  {
-    id: 'moment-of-photos/mobile-photo',
-    name: 'Mobile Photo',
-    description: 'ช่วงเวลาส่วนตัว',
-  },
-];
 
 export default function Home() {
   const router = useRouter();
@@ -220,7 +203,7 @@ export default function Home() {
                   <div
                     key={album.id}
                     onClick={() => navigateToAlbum(album.id)}
-                    className='group cursor-pointer flex-shrink-0 w-full sm:w-80 md:w-96'
+                    className='group cursor-pointer shrink-0 w-full sm:w-80 md:w-96'
                   >
                     <div className='bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-all duration-300 border border-white/20 h-full'>
                       <div className='mb-6'>
